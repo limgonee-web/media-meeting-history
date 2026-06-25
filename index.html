@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>기자 미팅 메모</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css"/>
+</head>
+<body>
+  <h1 class="sr-only">기자 미팅 메모 대시보드</h1>
+
+  <div class="root">
+    <aside class="sidebar">
+      <div class="logo"><i class="ti ti-notebook" aria-hidden="true"></i> 미팅 메모</div>
+      <div class="search-wrap">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input type="text" id="searchInput" placeholder="기자명, 매체 검색" oninput="renderCards()"/>
+      </div>
+      <div class="filter-group">
+        <p class="filter-label">컬리 선호도</p>
+        <div class="chip-group" id="karlyFilter">
+          <span class="chip active" data-val="all">전체</span>
+          <span class="chip" data-val="매우 애용">매우 애용</span>
+          <span class="chip" data-val="보통">보통</span>
+          <span class="chip" data-val="가끔">가끔</span>
+          <span class="chip" data-val="미이용">미이용</span>
+        </div>
+      </div>
+      <div class="filter-group">
+        <p class="filter-label">커피</p>
+        <div class="chip-group" id="coffeeFilter">
+          <span class="chip active" data-val="all">전체</span>
+          <span class="chip" data-val="가능">가능</span>
+          <span class="chip" data-val="불가능">불가능</span>
+        </div>
+      </div>
+      <div class="sync-info" id="syncInfo">
+        <i class="ti ti-refresh" aria-hidden="true"></i>
+        <span id="syncText">로딩 중...</span>
+      </div>
+      <button class="add-btn" onclick="openModal(null)">
+        <i class="ti ti-plus" aria-hidden="true"></i> 새 미팅 메모
+      </button>
+    </aside>
+
+    <div class="main">
+      <div class="topbar">
+        <span class="page-title">기자 목록</span>
+        <button class="refresh-btn" onclick="loadData()" title="새로고침">
+          <i class="ti ti-refresh" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="card-list" id="cardList">
+        <div class="loading-msg">데이터를 불러오는 중...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 미팅 메모 등록/수정 모달 -->
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">새 미팅 메모</span>
+        <button class="modal-close" onclick="closeModal()" aria-label="닫기">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label" for="f_date">날짜</label>
+            <input type="date" id="f_date"/>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="f_media">매체명</label>
+            <input type="text" id="f_media" placeholder="예: 시사저널이코노미"/>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="f_name">기자명</label>
+            <input type="text" id="f_name" placeholder="홍길동"/>
+          </div>
+          <div class="form-field full">
+            <label class="form-label">참석자 (복수선택 가능)</label>
+            <div class="check-group" id="f_attendees">
+              <span class="check-opt" data-val="임고은">임고은</span>
+              <span class="check-opt" data-val="최다래">최다래</span>
+              <span class="check-opt" data-val="최영완">최영완</span>
+              <span class="check-opt" data-val="박규석">박규석</span>
+              <span class="check-opt" data-val="최성우">최성우</span>
+              <span class="check-opt" data-val="__기타__">기타</span>
+            </div>
+            <input type="text" class="other-input" id="f_attendees_other" placeholder="이름 입력"/>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="f_area">지역</label>
+            <input type="text" id="f_area" placeholder="신사, 여의도 등" oninput="renderAreaSuggestions()"/>
+            <div class="suggestions" id="areaSuggestions"></div>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="f_place">장소</label>
+            <input type="text" id="f_place" placeholder=""/>
+          </div>
+          <div class="form-field full">
+            <label class="form-label">커피</label>
+            <div class="radio-group" id="f_coffee">
+              <span class="radio-opt" data-val="가능">가능</span>
+              <span class="radio-opt" data-val="불가능">불가능</span>
+            </div>
+          </div>
+          <div class="form-field full">
+            <label class="form-label">컬리 선호도</label>
+            <div class="radio-group" id="f_karly">
+              <span class="radio-opt" data-val="매우 애용">매우 애용</span>
+              <span class="radio-opt" data-val="보통">보통</span>
+              <span class="radio-opt" data-val="가끔">가끔</span>
+              <span class="radio-opt" data-val="미이용">미이용</span>
+            </div>
+          </div>
+          <div class="form-field full">
+            <label class="form-label" for="f_content">내용</label>
+            <textarea id="f_content" placeholder="내용을 입력하세요"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal()">취소</button>
+        <button class="btn-save" onclick="saveEntry()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
