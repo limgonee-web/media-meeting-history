@@ -3,7 +3,7 @@
    구글 시트 Apps Script 웹앱 URL을 아래에 입력하세요.
    ================================================================ */
 
-const APPS_SCRIPT_URL = "여기에_앱스스크립트_웹앱_URL_입력";
+const APPS_SCRIPT_URL = "https://script.google.com/a/macros/kurlycorp.com/s/AKfycbxqss4umjyOSZw2Xu9kLonjhq0cVhiKsCCmh2ScOCGYiDVA-nEKScSG2csq9xb2AWDBkQ/exec";
 
 /* ── 색상 / 분류 ─────────────────────────────────────── */
 const COLORS = ["av-blue", "av-teal", "av-amber", "av-coral", "av-purple"];
